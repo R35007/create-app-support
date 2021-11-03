@@ -59,4 +59,4 @@ Provide you App name and other configurations and click `Execute` button to Crea
 
 ## Preview
 
-![Screen Capture in Action](https://raw.githubusercontent.com/R35007/create-app-support/master/images/previews/preview_v2.0.0.gif)
+![Screen Capture in Action](https://raw.githubusercontent.com/R35007/create-app-support/master/images/previews/preview_v3.0.0.gif)
