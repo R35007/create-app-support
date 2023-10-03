@@ -6,11 +6,11 @@ Easily Create any UI App with Official Starter Templates or Boilerplate using CL
 
 ## Features
 
-- Easy to create a boilerplate app using the interactive Create App view.
-- Apps can also be created using the vscode quick picks.
-- We can also add our custom apps and commands to generate a interactive view and quick pick.
+- Easy to create a boilerplate app using the `Create App: Interactive` view.
+- Bored of interactive form fields, no worries. Try the new `Create App: Quick` command to create a app in seconds using vscode quick pick command pallet.
+- Add our own custom apps and commands that generates interactive form fields and quick picks.
 
-## Supported Apps:
+## Default Apps:
 
 <span><sub><a href="https://angular.io/"><img src="./images/angular.png" alt="" width="20"></a></sub>&nbsp;&nbsp;Angular</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 <span><sub><a href="https://www.djangoproject.com/"><img src="./images/django.png" alt="" width="20"></a></sub>&nbsp;&nbsp;Django</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
@@ -27,21 +27,26 @@ Easily Create any UI App with Official Starter Templates or Boilerplate using CL
 <span><sub><a href="https://code.visualstudio.com/api"><img src="./images/vscode.png" alt="" width="20"></a></sub>&nbsp;&nbsp;VS Code Extension</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 <span><sub><a href="https://vuejs.org/"><img src="./images/vue.png" alt="" width="20"></a></sub>&nbsp;&nbsp;Vue</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 
-## Interactive
+## Create App: Interactive
 
 - Give `Ctrl/Cmd+Shift+P` to open the command pallet and type `Create App: Interactive` to open the Create App view.
 - This opens an interactive ui that prompts you tp pick the app name and provide configurations to create the app.
 
-![Screen Capture in Action](./images/preview_interactive.gif)
+![Create App: Interactive Preview](./images/preview_interactive.gif)
 
-## Quick
+## Create App: Quick
 
 - Give `Ctrl/Cmd+Shift+P` to open the command pallet and type `Create App: Quick` to open the Create App quick prompt.
-- This provides you the quick command pallet and prompt you the pick the app and its required minimal configurations to create the app
+- This provides you the quick command pallet and prompt you the pick the app and its required minimal configurations to create the app.
 
-![Screen Capture in Action](./images/preview_quick.gif)
+![Create App: Quick Preview](./images/preview_quick.gif)
 
-## Custom App JSON interface
+## Custom App Config interface
+
+- Custom app can be provide in two ways.
+  - use `create-app.settings.customApps` setting - provide a direct list of custom apps config.
+  - or use `create-app.settings.customAppPath` setting - provide the `json` file path or folder path containing list of custom apps config.
+  - Click [here](https://github.com/R35007/create-app-vscode-extension/tree/master/apps) for more app config references.
 
 ```ts
 interface Tags {
@@ -75,7 +80,7 @@ interface FieldProps {
 
 interface AppProps {
   appName: string; // Provide a unique app name. This overrides the app configs if already exist with a same name.
-  commandTemplate: string; // Provide a command template here. Ex: "commandTemplate": "ng new ${fields.appId} --defaults" or "ng new ${fields['*']} --defaults"
+  commandTemplate: string | string[]; // Provide a command template here. Ex: "commandTemplate": "ng new ${fields.appId} --defaults" or "ng new ${fields['*']} --defaults"
   fields?: Record<string, FieldProps>; // Provide the app configuration to generate a app form fields. Ex: "fields": { "appId": { "type": "textbox", "required": true, value: "hello-world" } }
   description?: string; // This description will be shown below the About section in the right side of the form.
   order?: number; // Provide the App order to display in the apps list
@@ -88,58 +93,20 @@ interface AppProps {
 }
 ```
 
-### `commandTemplate`
+## Command Template Variables
 
 - `commandTemplate` helps to generate the cli command.
 - It takes the variable `fields` and populates its value based on the field name.
-- Lets see the commandTemplate examples for the given fields
 
 ```json
 {
-  "fields": {
-    "appId": {
-      "label": "App Id",
-      "type": "textbox",
-      "placeholder": "Can have lowercase alphabets and hyphen (-). No spaces or special chars are allowed.",
-      "value": "hello-world",
-      "required": true,
-      "pattern": "^[a-z]+(-[a-z]+)*$",
-      "errors": {
-        "required": "App Id is Required.",
-        "pattern": "Invalid Id. No spaces or special chars are allowed."
-      }
-    }
-    "routing": {
-      "label": "Include Routing ?",
-      "type": "radio",
-      "value": "--routing",
-      "options": [
-        {
-          "label": "Yes",
-          "value": "--routing"
-        },
-        {
-          "label": "No",
-          "value": ""
-        }
-      ]
-    }
-  }
+  "commandTemplate": [
+    "npm install -g @angular/cli ;" // Add semicolon (;) to end the command. This adds the new line after the semicolon.
+    "ng new ${fields.appId} ${fields['template']};", // populates the value of the specified field name.
+    "ng new ${fields.get('appId', 'template')};", // populates the value of the specified field name using get method.
+    "ng new fields.get('*');", // populates all field values.
+    "ng new ${fields.getExcept('appId', 'template')};", // populates all the field values except the given field names.
+    "${fields.openInVsCode ? `code ${fields.appId};` : ''}" // conditionally updated the command based on other field values.
+  ]
 }
 ```
-
-- Example 1:
-  - If commandTemplate is `ng new ${fields.appId} --defaults`,
-  - Then the output of the command for the above commandTemplate will be `ng new hello-world --defaults`.
-  - As we have seen the `routing` value is not populated in the command as we have not used in it.
-- Example 2:
-  - To see the routing value in the command we need to provide the commandTemplate as `ng new ${fields.appId} ${fields.routing} --defaults`.
-  - Now the output of the command for the above commandTemplate will be `ng new hello-world --routing --defaults`.
-- Example 3:
-  - Instead of explicitly setting each field value in commandTemplate we can use `${fields['*']}` to populate all the field values.
-  - Set commandTemplate as `ng new ${fields['*']} --defaults`,
-  - Now the output of the command for the above commandTemplate will be `ng new hello-world --routing --defaults`.
-- Example 4:
-  - We can also use conditional logic to generate the command from commandTemplate
-  - Set commandTemplate as `ng new ${fields.appId} ${!fields.routing ? '--default-route' : fields.routing} --defaults`,
-  - from the above commandTemplate, If the value of routing is empty the we set a default command as `--default-route`
