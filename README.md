@@ -53,31 +53,31 @@ Easily Create any UI App with Official Starter Templates or Boilerplate using CL
 interface Tags {
   label: string;
   description: string;
-  command?: string; //  Provide a command to execute in terminal on click
-  href?: string; // Provide the link to webpage to redirect on click
+  command?: string; //  Provide a command to execute in terminal on click.
+  href?: string; // Provide the link to webpage to redirect on click.
 }
 
 interface FieldProps {
-  label: string;
+  label?: string;
   type?: "textbox" | "checkbox" | "radio" | "browse" | "dropdown";
-  prefix?: string; // set prefix of the field value. Ex: "prefix":"--template=\""
-  suffix?: string; // set suffix of the field value. Ex: "prefix":"\""
-  checkedValue?: string | boolean; // used only for field type checkbox
-  unCheckedValue?: string | boolean; // used only for field type checkbox
-  value?: string | boolean; // The prefix and suffix will be added to the value. Ex: --template="value"
+  prefix?: string; // set prefix of the field value. Ex: "prefix":"--template=\"".
+  suffix?: string; // set suffix of the field value. Ex: "prefix":"\"".
+  checkedValue?: string | boolean; // used only for field type checkbox.
+  unCheckedValue?: string | boolean; // used only for field type checkbox.
+  value?: string | boolean; // The prefix and suffix will be added to the value. Ex: --template="value".
   placeholder?: string;
   description?: string;
-  order?: number; // mention the field render order position
+  order?: number; // mention the field render order position.
   hide?: boolean; // If true it will hide hide the field both in interactive form and Quick pick.
-  buttonText?: string; // provide button text if the field type is "browse"
-  required?: boolean; // By default all required fields will be prompted on command Create App: Quick
-  pattern?: string; // Set pattern to validate the value
-  prompt?: boolean; // If True this field will be prompted on command Create App: Quick
-  canSelectFile?: boolean; // Set to true or false when field type is "browse"
-  canSelectFolder?: boolean; // Set to true or false when field type is "browse"
-  errors?: { required?: string; pattern?: string }; // provide the error message
+  buttonText?: string; // provide button text if the field type is "browse".
+  required?: boolean; // By default all required fields will be prompted on command Create App: Quick.
+  pattern?: string; // Set pattern to validate the value.
+  prompt?: boolean; // If True this field will be prompted on command Create App: Quick.
+  canSelectFile?: boolean; // Set to true or false when field type is "browse".
+  canSelectFolder?: boolean; // Set to true or false when field type is "browse".
+  errors?: { required?: string; pattern?: string }; // provide the error message.
   options?: Array<{
-    // provide options if the field type is "radio" or "dropdown"
+    // provide options if the field type is "radio" or "dropdown".
     label: string;
     value: any;
   }>;
@@ -85,28 +85,40 @@ interface FieldProps {
 
 interface AppProps {
   appName: string; // Provide a unique app name. This overrides the app configs if already exist with a same name.
-  commandTemplate: string | string[]; // Provide a command template here. Ex: "commandTemplate": "ng new ${fields.appId} --defaults" or "ng new ${fields['*']} --defaults"
-  fields?: Record<string, FieldProps>; // Provide the app configuration to generate a app form fields. Ex: "fields": { "appId": { "type": "textbox", "required": true, value: "hello-world" } }
+  groupNames: string[]; // Set the Lst of group name. Example: If "App1" has a "Group1" and "App2" also has a "Group1. Then Both "App1" and "App2" will be shown in the "Group1".
+  relatedAppNames: string[]; // Set the List of other App Name to navigate.
+  commandTemplate: string | string[]; // Provide a command template here. Ex: "commandTemplate": "ng new ${fields.appId} --defaults" or "ng new ${fields['*']} --defaults".
+  fields?: Record<string, FieldProps>; // Provide the app configuration to generate a app form fields. Ex: "fields": { "appId": { "type": "textbox", "required": true, value: "hello-world" } }.
   description?: string; // This description will be shown below the About section in the right side of the form.
-  order?: number; // Provide the App order to display in the apps list
-  hide?: boolean; // If true this app will not be shown in both interactive and quick commands
-  logoPath?: string; // Provide the app logo path. If not provide it will show the create app logo
-  prerequisites?: Tags[]; // Provide the list of prerequisites commands and site links
-  additionalCommands?: Tags[]; // Provide the additional commands to execute in terminal
-  resources?: Tags[]; // List of links to refer the app
-  tags?: string[]; // Provide the list of stings that helps to find the app
+  order?: number; // Provide the App order to display in the apps list.
+  hide?: boolean; // If true this app will not be shown in both interactive and quick commands.
+  logoPath?: string; // Provide the app logo path. If not provide it will show the create app logo.
+  prerequisites?: Tags[]; // Provide the list of prerequisites commands and site links.
+  additionalCommands?: Tags[]; // Provide the additional commands to execute in terminal.
+  resources?: Tags[]; // List of links to refer the app.
+  tags?: string[]; // Provide the list of stings that helps to find the app.
 }
 ```
 
-## Command Template Variables
+````
 
-- `commandTemplate` helps to generate the cli command.
-- It takes the variable `fields` and populates its value based on the field name.
+## Substitution tokens
+
+`commandTemplate` helps to generate the cli command. You can use the following substitution tokens in `commandTemplate` strings:
+
+- `${fields}` - get the field values.
+- `${workspaceFolder}` alias `${ced}` - get the current working directory or a current workspace folder.
+- `${workspaceFolderBasename}` - get the current workspace folder base name.
+- `${execPath}` - get the command execution folder path.
+- `${execPathBasename}` - get the command execution folder path base name.
+- `${env}` - get the object of `process.env`. Ex: `"${env.NODE_ENV}"`
+
+### fields token
 
 ```json
 {
   "commandTemplate": [
-    "npm install -g @angular/cli ;" // Add semicolon (;) to end the command. This adds the new line after the semicolon.
+    "npm install -g @angular/cli;" // Add semicolon (;) to end the command. This adds the new line after the semicolon.
     "ng new ${fields.appId} ${fields['template']};", // populates the value of the specified field name.
     "ng new ${fields.get('appId', 'template')};", // populates the value of the specified field name using get method.
     "ng new fields.get('*');", // populates all field values.
@@ -114,4 +126,4 @@ interface AppProps {
     "${fields.openInVsCode ? `code ${fields.appId};` : ''}" // conditionally updated the command based on other field values.
   ]
 }
-```
+````
